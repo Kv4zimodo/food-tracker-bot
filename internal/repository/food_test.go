@@ -36,6 +36,28 @@ func TestCreatedFood(t *testing.T) {
 	if createdFood.ID == 0 {
 		t.Error("food ID must be than 0")
 	}
+	if createdFood.Name != food.Name {
+		t.Errorf("expected %s, got %s", food.Name, createdFood.Name)
+	}
+
+	if createdFood.Calories != food.Calories {
+		t.Errorf("expected %f, got %f", food.Calories, createdFood.Calories)
+	}
+
+	if createdFood.Protein != food.Protein {
+		t.Errorf("expected %f, got %f", food.Protein, createdFood.Protein)
+	}
+
+	if createdFood.Fat != food.Fat {
+		t.Errorf("expected %f, got %f", food.Fat, createdFood.Fat)
+	}
+
+	if createdFood.Carbs != food.Carbs {
+		t.Errorf("expected %f, got %f", food.Carbs, createdFood.Carbs)
+	}
+	t.Cleanup(func() {
+		_ = repo.DeleteFood(createdFood.ID, ctx)
+	})
 }
 
 func TestDeletedFood(t *testing.T) {
@@ -72,7 +94,7 @@ func TestDeletedFood(t *testing.T) {
 
 }
 
-func TestGetFoundByID(t *testing.T) {
+func TestGetFoodByID(t *testing.T) {
 	if err := godotenv.Load("../../.env"); err != nil {
 		t.Fatal(err)
 	}
