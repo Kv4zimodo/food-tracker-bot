@@ -24,8 +24,19 @@ func TestCreateMealItem(t *testing.T) {
 		conn.Close(ctx)
 	})
 
+	user := models.User{
+		Name: "test_user",
+	}
+
+	userRepo := NewUserRepository(conn)
+
+	createdUser, err := userRepo.CreateUser(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	meal := models.Meal{
-		UserID:   1,
+		UserID:   createdUser.ID,
 		Category: "breakfast",
 	}
 
@@ -36,9 +47,24 @@ func TestCreateMealItem(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	food := models.Food{
+		Name:     "Chicken",
+		Calories: 165,
+		Protein:  31,
+		Fat:      3.6,
+		Carbs:    0,
+	}
+
+	foodRepo := NewFoodRepository(conn)
+
+	createdFood, err := foodRepo.CreateFood(food, ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	mealItem := models.MealItem{
 		MealID: createdMeal.ID,
-		FoodID: 1,
+		FoodID: createdFood.ID,
 		Weight: 150,
 	}
 
@@ -63,7 +89,9 @@ func TestCreateMealItem(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMealItem(ctx, createdMealItem.ID)
+		_ = foodRepo.DeleteFood(createdFood.ID, ctx)
 		_ = mealRepo.DeleteMeal(ctx, createdMeal.ID)
+		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
 }
 
@@ -80,8 +108,19 @@ func TestDeleteMealItem(t *testing.T) {
 		conn.Close(ctx)
 	})
 
+	user := models.User{
+		Name: "test_user",
+	}
+
+	userRepo := NewUserRepository(conn)
+
+	createdUser, err := userRepo.CreateUser(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	meal := models.Meal{
-		UserID:   1,
+		UserID:   createdUser.ID,
 		Category: "breakfast",
 	}
 
@@ -92,9 +131,24 @@ func TestDeleteMealItem(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	food := models.Food{
+		Name:     "Chicken",
+		Calories: 165,
+		Protein:  31,
+		Fat:      3.6,
+		Carbs:    0,
+	}
+
+	foodRepo := NewFoodRepository(conn)
+
+	createdFood, err := foodRepo.CreateFood(food, ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	mealItem := models.MealItem{
 		MealID: createdMeal.ID,
-		FoodID: 1,
+		FoodID: createdFood.ID,
 		Weight: 150,
 	}
 
@@ -117,7 +171,9 @@ func TestDeleteMealItem(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMealItem(ctx, createdMealItem.ID)
+		_ = foodRepo.DeleteFood(createdFood.ID, ctx)
 		_ = mealRepo.DeleteMeal(ctx, createdMeal.ID)
+		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
 }
 
@@ -134,8 +190,19 @@ func TestGetMealItemByID(t *testing.T) {
 		conn.Close(ctx)
 	})
 
+	user := models.User{
+		Name: "test_user",
+	}
+
+	userRepo := NewUserRepository(conn)
+
+	createdUser, err := userRepo.CreateUser(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	meal := models.Meal{
-		UserID:   1,
+		UserID:   createdUser.ID,
 		Category: "breakfast",
 	}
 
@@ -146,9 +213,24 @@ func TestGetMealItemByID(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	food := models.Food{
+		Name:     "Chicken",
+		Calories: 165,
+		Protein:  31,
+		Fat:      3.6,
+		Carbs:    0,
+	}
+
+	foodRepo := NewFoodRepository(conn)
+
+	createdFood, err := foodRepo.CreateFood(food, ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	mealItem := models.MealItem{
 		MealID: createdMeal.ID,
-		FoodID: 1,
+		FoodID: createdFood.ID,
 		Weight: 150,
 	}
 
@@ -182,7 +264,9 @@ func TestGetMealItemByID(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMealItem(ctx, createdMealItem.ID)
+		_ = foodRepo.DeleteFood(createdFood.ID, ctx)
 		_ = mealRepo.DeleteMeal(ctx, createdMeal.ID)
+		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
 }
 
@@ -199,8 +283,19 @@ func TestFoundAllMealItems(t *testing.T) {
 		conn.Close(ctx)
 	})
 
+	user := models.User{
+		Name: "test_user",
+	}
+
+	userRepo := NewUserRepository(conn)
+
+	createdUser, err := userRepo.CreateUser(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	meal := models.Meal{
-		UserID:   1,
+		UserID:   createdUser.ID,
 		Category: "breakfast",
 	}
 
@@ -211,9 +306,24 @@ func TestFoundAllMealItems(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	food := models.Food{
+		Name:     "Chicken",
+		Calories: 165,
+		Protein:  31,
+		Fat:      3.6,
+		Carbs:    0,
+	}
+
+	foodRepo := NewFoodRepository(conn)
+
+	createdFood, err := foodRepo.CreateFood(food, ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	mealItem := models.MealItem{
 		MealID: createdMeal.ID,
-		FoodID: 1,
+		FoodID: createdFood.ID,
 		Weight: 150,
 	}
 
@@ -243,7 +353,9 @@ func TestFoundAllMealItems(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMealItem(ctx, createdMealItem.ID)
+		_ = foodRepo.DeleteFood(createdFood.ID, ctx)
 		_ = mealRepo.DeleteMeal(ctx, createdMeal.ID)
+		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
 }
 
@@ -260,8 +372,19 @@ func TestUpdateMealItem(t *testing.T) {
 		conn.Close(ctx)
 	})
 
+	user := models.User{
+		Name: "test_user",
+	}
+
+	userRepo := NewUserRepository(conn)
+
+	createdUser, err := userRepo.CreateUser(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	meal := models.Meal{
-		UserID:   1,
+		UserID:   createdUser.ID,
 		Category: "breakfast",
 	}
 
@@ -272,15 +395,43 @@ func TestUpdateMealItem(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	food1 := models.Food{
+		Name:     "Chicken",
+		Calories: 165,
+		Protein:  31,
+		Fat:      3.6,
+		Carbs:    0,
+	}
+
+	food2 := models.Food{
+		Name:     "Rice",
+		Calories: 130,
+		Protein:  2.7,
+		Fat:      0.3,
+		Carbs:    28,
+	}
+
+	foodRepo := NewFoodRepository(conn)
+
+	createdFood1, err := foodRepo.CreateFood(food1, ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	createdFood2, err := foodRepo.CreateFood(food2, ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	mealItem1 := models.MealItem{
 		MealID: createdMeal.ID,
-		FoodID: 1,
+		FoodID: createdFood1.ID,
 		Weight: 150,
 	}
 
 	mealItem2 := models.MealItem{
 		MealID: createdMeal.ID,
-		FoodID: 2,
+		FoodID: createdFood2.ID,
 		Weight: 200,
 	}
 
@@ -310,6 +461,9 @@ func TestUpdateMealItem(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMealItem(ctx, createdMealItem.ID)
+		_ = foodRepo.DeleteFood(createdFood1.ID, ctx)
+		_ = foodRepo.DeleteFood(createdFood2.ID, ctx)
 		_ = mealRepo.DeleteMeal(ctx, createdMeal.ID)
+		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
 }

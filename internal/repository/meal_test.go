@@ -24,8 +24,19 @@ func TestCreateMeal(t *testing.T) {
 		conn.Close(ctx)
 	})
 
+	user := models.User{
+		Name: "test_user",
+	}
+
+	userRepo := NewUserRepository(conn)
+
+	createdUser, err := userRepo.CreateUser(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	meal := models.Meal{
-		UserID:   1,
+		UserID:   createdUser.ID,
 		Category: "breakfast",
 	}
 
@@ -46,6 +57,7 @@ func TestCreateMeal(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMeal(ctx, createdMeal.ID)
+		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
 }
 
@@ -62,8 +74,19 @@ func TestDeleteMeal(t *testing.T) {
 		conn.Close(ctx)
 	})
 
+	user := models.User{
+		Name: "test_user",
+	}
+
+	userRepo := NewUserRepository(conn)
+
+	createdUser, err := userRepo.CreateUser(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	meal := models.Meal{
-		UserID:   1,
+		UserID:   createdUser.ID,
 		Category: "breakfast",
 	}
 
@@ -86,6 +109,7 @@ func TestDeleteMeal(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMeal(ctx, createdMeal.ID)
+		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
 }
 
@@ -102,8 +126,19 @@ func TestGetMealByID(t *testing.T) {
 		conn.Close(ctx)
 	})
 
+	user := models.User{
+		Name: "test_user",
+	}
+
+	userRepo := NewUserRepository(conn)
+
+	createdUser, err := userRepo.CreateUser(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	meal := models.Meal{
-		UserID:   1,
+		UserID:   createdUser.ID,
 		Category: "breakfast",
 	}
 
@@ -133,6 +168,7 @@ func TestGetMealByID(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMeal(ctx, createdMeal.ID)
+		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
 }
 
@@ -149,8 +185,19 @@ func TestFoundAllMeals(t *testing.T) {
 		conn.Close(ctx)
 	})
 
+	user := models.User{
+		Name: "test_user",
+	}
+
+	userRepo := NewUserRepository(conn)
+
+	createdUser, err := userRepo.CreateUser(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	meal := models.Meal{
-		UserID:   1,
+		UserID:   createdUser.ID,
 		Category: "breakfast",
 	}
 
@@ -180,6 +227,7 @@ func TestFoundAllMeals(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMeal(ctx, createdMeal.ID)
+		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
 }
 
@@ -196,13 +244,24 @@ func TestUpdateMeal(t *testing.T) {
 		conn.Close(ctx)
 	})
 
+	user := models.User{
+		Name: "test_user",
+	}
+
+	userRepo := NewUserRepository(conn)
+
+	createdUser, err := userRepo.CreateUser(ctx, user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	meal1 := models.Meal{
-		UserID:   1,
+		UserID:   createdUser.ID,
 		Category: "breakfast",
 	}
 
 	meal2 := models.Meal{
-		UserID:   1,
+		UserID:   createdUser.ID,
 		Category: "lunch",
 	}
 
@@ -228,5 +287,6 @@ func TestUpdateMeal(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMeal(ctx, createdMeal.ID)
+		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
 }
