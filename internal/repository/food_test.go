@@ -20,7 +20,10 @@ func TestCreatedFood(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer conn.Close(ctx)
+	t.Cleanup(func() {
+		conn.Close(ctx)
+	})
+
 	food := models.Food{
 		Name:     "sausage",
 		Calories: 210,
@@ -70,7 +73,10 @@ func TestDeletedFood(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer conn.Close(ctx)
+	t.Cleanup(func() {
+		conn.Close(ctx)
+	})
+
 	food := models.Food{
 		Name:     "sausage",
 		Calories: 210,
@@ -103,7 +109,10 @@ func TestGetFoodByID(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer conn.Close(ctx)
+	t.Cleanup(func() {
+		conn.Close(ctx)
+	})
+
 	food := models.Food{
 		Name:     "sausage",
 		Calories: 210,
@@ -146,7 +155,10 @@ func TestFoundAllFoods(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer conn.Close(ctx)
+	t.Cleanup(func() {
+		conn.Close(ctx)
+	})
+
 	food := models.Food{
 		Name:     "sausage",
 		Calories: 210,
@@ -190,7 +202,10 @@ func TestUpdateFood(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer conn.Close(ctx)
+	t.Cleanup(func() {
+		conn.Close(ctx)
+	})
+
 	food := models.Food{
 		Name:     "sausage",
 		Calories: 210,

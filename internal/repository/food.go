@@ -80,14 +80,15 @@ func (f *FoodRepository) GetAllFoods(ctx context.Context) ([]models.Food, error)
 			&food.Protein,
 			&food.Fat,
 			&food.Carbs)
-		if err = rows.Err(); err != nil {
+		if err != nil {
 			return nil, err
 		}
 		foods = append(foods, food)
-
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 	return foods, nil
-
 }
 
 func (f *FoodRepository) UpdateFood(ctx context.Context, id int64, food models.Food) (*models.Food, error) {
