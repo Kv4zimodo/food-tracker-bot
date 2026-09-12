@@ -7,17 +7,24 @@ import (
 	"github.com/kv4zimodo/food-tracker-bot/internal/models"
 )
 
-type GoalRepository struct {
+type goalRepository struct {
 	db *pgx.Conn
 }
 
-func NewGoalRepository(db *pgx.Conn) *GoalRepository {
-	return &GoalRepository{
+type GoalRepository interface {
+	CreateGoal(ctx context.Context, goal models.Goal) (*models.Goal, error)
+	DeleteGoal(ctx context.Context, userID int64) error
+	GetGoalByUserID(ctx context.Context, userID int64) (*models.Goal, error)
+	UpdateGoal(ctx context.Context, userID int64, goal models.Goal) (*models.Goal, error)
+}
+
+func NewGoalRepository(db *pgx.Conn) GoalRepository {
+	return &goalRepository{
 		db: db,
 	}
 }
 
-func (g *GoalRepository) CreateGoal(ctx context.Context, goal models.Goal) (*models.Goal, error) {
+func (g *goalRepository) CreateGoal(ctx context.Context, goal models.Goal) (*models.Goal, error) {
 	query := `INSERT INTO goals (user_id, calories, protein, fats, carbs)
 	VALUES ($1, $2, $3, $4, $5)
 	RETURNING user_id, calories, protein, fats, carbs
@@ -38,7 +45,7 @@ func (g *GoalRepository) CreateGoal(ctx context.Context, goal models.Goal) (*mod
 	return &goal, nil
 }
 
-func (g *GoalRepository) DeleteGoal(ctx context.Context, userID int64) error {
+func (g *goalRepository) DeleteGoal(ctx context.Context, userID int64) error {
 	query := `DELETE FROM goals
 	WHERE user_id = $1
 	`
@@ -46,7 +53,7 @@ func (g *GoalRepository) DeleteGoal(ctx context.Context, userID int64) error {
 	return err
 }
 
-func (g *GoalRepository) GetGoalByUserID(ctx context.Context, userID int64) (*models.Goal, error) {
+func (g *goalRepository) GetGoalByUserID(ctx context.Context, userID int64) (*models.Goal, error) {
 	query := `SELECT user_id, calories, protein, fats, carbs
 	FROM goals
 	WHERE user_id = $1
@@ -63,7 +70,7 @@ func (g *GoalRepository) GetGoalByUserID(ctx context.Context, userID int64) (*mo
 	return &goal, nil
 }
 
-func (g *GoalRepository) UpdateGoal(ctx context.Context, userID int64, goal models.Goal) (*models.Goal, error) {
+func (g *goalRepository) UpdateGoal(ctx context.Context, userID int64, goal models.Goal) (*models.Goal, error) {
 	query := `UPDATE goals
 	SET calories = $1, protein = $2, fats = $3, carbs = $4
 	WHERE user_id = $5
