@@ -32,7 +32,7 @@ func TestCreatedFood(t *testing.T) {
 		Carbs:    25,
 	}
 	repo := NewFoodRepository(conn)
-	createdFood, err := repo.CreateFood(food, ctx)
+	createdFood, err := repo.CreateFood(ctx, food)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func TestCreatedFood(t *testing.T) {
 		t.Errorf("expected %f, got %f", food.Carbs, createdFood.Carbs)
 	}
 	t.Cleanup(func() {
-		_ = repo.DeleteFood(createdFood.ID, ctx)
+		_ = repo.DeleteFood(ctx, createdFood.ID)
 	})
 }
 
@@ -85,15 +85,15 @@ func TestDeletedFood(t *testing.T) {
 		Carbs:    25,
 	}
 	repo := NewFoodRepository(conn)
-	createdFood, err := repo.CreateFood(food, ctx)
+	createdFood, err := repo.CreateFood(ctx, food)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = repo.DeleteFood(createdFood.ID, ctx)
+	err = repo.DeleteFood(ctx, createdFood.ID)
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = repo.GetFoodByID(createdFood.ID, ctx)
+	_, err = repo.GetFoodByID(ctx, createdFood.ID)
 	if !errors.Is(err, pgx.ErrNoRows) {
 		t.Errorf("expected pgx.ErrNoRows, got %v", err)
 	}
@@ -121,11 +121,11 @@ func TestGetFoodByID(t *testing.T) {
 		Carbs:    25,
 	}
 	repo := NewFoodRepository(conn)
-	createdFood, err := repo.CreateFood(food, ctx)
+	createdFood, err := repo.CreateFood(ctx, food)
 	if err != nil {
 		t.Fatal(err)
 	}
-	foundFood, err := repo.GetFoodByID(createdFood.ID, ctx)
+	foundFood, err := repo.GetFoodByID(ctx, createdFood.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -168,7 +168,7 @@ func TestFoundAllFoods(t *testing.T) {
 	}
 
 	repo := NewFoodRepository(conn)
-	createdFood, err := repo.CreateFood(food, ctx)
+	createdFood, err := repo.CreateFood(ctx, food)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -188,7 +188,7 @@ func TestFoundAllFoods(t *testing.T) {
 		t.Error("created food was not found")
 	}
 	t.Cleanup(func() {
-		_ = repo.DeleteFood(createdFood.ID, ctx)
+		_ = repo.DeleteFood(ctx, createdFood.ID)
 
 	})
 }
@@ -221,7 +221,7 @@ func TestUpdateFood(t *testing.T) {
 		Carbs:    0,
 	}
 	repo := NewFoodRepository(conn)
-	createdFood, err := repo.CreateFood(food, ctx)
+	createdFood, err := repo.CreateFood(ctx, food)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -245,6 +245,6 @@ func TestUpdateFood(t *testing.T) {
 		t.Errorf("expected %f, got %f", food2.Carbs, updateFood.Carbs)
 	}
 	t.Cleanup(func() {
-		_ = repo.DeleteFood(createdFood.ID, ctx)
+		_ = repo.DeleteFood(ctx, createdFood.ID)
 	})
 }

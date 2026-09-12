@@ -57,7 +57,7 @@ func TestCreateMealItem(t *testing.T) {
 
 	foodRepo := NewFoodRepository(conn)
 
-	createdFood, err := foodRepo.CreateFood(food, ctx)
+	createdFood, err := foodRepo.CreateFood(ctx, food)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,7 +89,7 @@ func TestCreateMealItem(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMealItem(ctx, createdMealItem.ID)
-		_ = foodRepo.DeleteFood(createdFood.ID, ctx)
+		_ = foodRepo.DeleteFood(ctx, createdFood.ID)
 		_ = mealRepo.DeleteMeal(ctx, createdMeal.ID)
 		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
@@ -141,7 +141,7 @@ func TestDeleteMealItem(t *testing.T) {
 
 	foodRepo := NewFoodRepository(conn)
 
-	createdFood, err := foodRepo.CreateFood(food, ctx)
+	createdFood, err := foodRepo.CreateFood(ctx, food)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,7 +171,7 @@ func TestDeleteMealItem(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMealItem(ctx, createdMealItem.ID)
-		_ = foodRepo.DeleteFood(createdFood.ID, ctx)
+		_ = foodRepo.DeleteFood(ctx, createdFood.ID)
 		_ = mealRepo.DeleteMeal(ctx, createdMeal.ID)
 		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
@@ -223,7 +223,7 @@ func TestGetMealItemByID(t *testing.T) {
 
 	foodRepo := NewFoodRepository(conn)
 
-	createdFood, err := foodRepo.CreateFood(food, ctx)
+	createdFood, err := foodRepo.CreateFood(ctx, food)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -264,7 +264,7 @@ func TestGetMealItemByID(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMealItem(ctx, createdMealItem.ID)
-		_ = foodRepo.DeleteFood(createdFood.ID, ctx)
+		_ = foodRepo.DeleteFood(ctx, createdFood.ID)
 		_ = mealRepo.DeleteMeal(ctx, createdMeal.ID)
 		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
@@ -316,7 +316,7 @@ func TestFoundAllMealItems(t *testing.T) {
 
 	foodRepo := NewFoodRepository(conn)
 
-	createdFood, err := foodRepo.CreateFood(food, ctx)
+	createdFood, err := foodRepo.CreateFood(ctx, food)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -353,7 +353,7 @@ func TestFoundAllMealItems(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMealItem(ctx, createdMealItem.ID)
-		_ = foodRepo.DeleteFood(createdFood.ID, ctx)
+		_ = foodRepo.DeleteFood(ctx, createdFood.ID)
 		_ = mealRepo.DeleteMeal(ctx, createdMeal.ID)
 		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
@@ -413,12 +413,12 @@ func TestUpdateMealItem(t *testing.T) {
 
 	foodRepo := NewFoodRepository(conn)
 
-	createdFood1, err := foodRepo.CreateFood(food1, ctx)
+	createdFood1, err := foodRepo.CreateFood(ctx, food1)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	createdFood2, err := foodRepo.CreateFood(food2, ctx)
+	createdFood2, err := foodRepo.CreateFood(ctx, food2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -461,8 +461,8 @@ func TestUpdateMealItem(t *testing.T) {
 
 	t.Cleanup(func() {
 		_ = repo.DeleteMealItem(ctx, createdMealItem.ID)
-		_ = foodRepo.DeleteFood(createdFood1.ID, ctx)
-		_ = foodRepo.DeleteFood(createdFood2.ID, ctx)
+		_ = foodRepo.DeleteFood(ctx, createdFood1.ID)
+		_ = foodRepo.DeleteFood(ctx, createdFood2.ID)
 		_ = mealRepo.DeleteMeal(ctx, createdMeal.ID)
 		_ = userRepo.DeleteUser(ctx, createdUser.ID)
 	})
