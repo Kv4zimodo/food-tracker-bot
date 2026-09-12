@@ -7,17 +7,25 @@ import (
 	"github.com/kv4zimodo/food-tracker-bot/internal/models"
 )
 
-type FoodRepository struct {
+type foodRepository struct {
 	db *pgx.Conn
 }
 
-func NewFoodRepository(db *pgx.Conn) *FoodRepository {
-	return &FoodRepository{
+type FoodRepository interface {
+	CreateFood(ctx context.Context, food models.Food) (*models.Food, error)
+	DeleteFood(ctx context.Context, id int64) error
+	GetFoodByID(ctx context.Context, id int64) (*models.Food, error)
+	GetAllFoods(ctx context.Context) ([]models.Food, error)
+	UpdateFood(ctx context.Context, id int64, food models.Food) (*models.Food, error)
+}
+
+func NewFoodRepository(db *pgx.Conn) FoodRepository {
+	return &foodRepository{
 		db: db,
 	}
 }
 
-func (f *FoodRepository) CreateFood(food models.Food, ctx context.Context) (*models.Food, error) {
+func (f *foodRepository) CreateFood(ctx context.Context, food models.Food) (*models.Food, error) {
 	query := `INSERT INTO foods (name, calories, protein, fats, carbs)
 	VALUES ($1, $2, $3, $4, $5)
 	RETURNING id
@@ -34,7 +42,7 @@ func (f *FoodRepository) CreateFood(food models.Food, ctx context.Context) (*mod
 	}
 	return &food, nil
 }
-func (f *FoodRepository) DeleteFood(id int64, ctx context.Context) error {
+func (f *foodRepository) DeleteFood(ctx context.Context, id int64) error {
 	query := `DELETE FROM foods 
 	WHERE id = $1
 	`
@@ -43,7 +51,7 @@ func (f *FoodRepository) DeleteFood(id int64, ctx context.Context) error {
 
 }
 
-func (f *FoodRepository) GetFoodByID(id int64, ctx context.Context) (*models.Food, error) {
+func (f *foodRepository) GetFoodByID(ctx context.Context, id int64) (*models.Food, error) {
 	query := `SELECT id, name, calories, protein, fats, carbs
 	FROM foods
 	WHERE id = $1
@@ -61,7 +69,7 @@ func (f *FoodRepository) GetFoodByID(id int64, ctx context.Context) (*models.Foo
 	return &food, nil
 }
 
-func (f *FoodRepository) GetAllFoods(ctx context.Context) ([]models.Food, error) {
+func (f *foodRepository) GetAllFoods(ctx context.Context) ([]models.Food, error) {
 	query := `SELECT id, name, calories, protein, fats, carbs
 	FROM foods
 	`
@@ -91,7 +99,7 @@ func (f *FoodRepository) GetAllFoods(ctx context.Context) ([]models.Food, error)
 	return foods, nil
 }
 
-func (f *FoodRepository) UpdateFood(ctx context.Context, id int64, food models.Food) (*models.Food, error) {
+func (f *foodRepository) UpdateFood(ctx context.Context, id int64, food models.Food) (*models.Food, error) {
 	query := `UPDATE foods 
 	SET name = $1, calories = $2, protein = $3, fats = $4, carbs = $5
 	WHERE id = $6
