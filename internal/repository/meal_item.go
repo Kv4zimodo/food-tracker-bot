@@ -7,17 +7,25 @@ import (
 	"github.com/kv4zimodo/food-tracker-bot/internal/models"
 )
 
-type MealItemRepository struct {
+type mealItemRepository struct {
 	db *pgx.Conn
 }
 
-func NewMealItemRepository(db *pgx.Conn) *MealItemRepository {
-	return &MealItemRepository{
+type MealItemRepository interface {
+	CreateMealItem(ctx context.Context, mealItem models.MealItem) (*models.MealItem, error)
+	DeleteMealItem(ctx context.Context, id int64) error
+	GetMealItemByID(ctx context.Context, id int64) (*models.MealItem, error)
+	GetAllMealItems(ctx context.Context) ([]models.MealItem, error)
+	UpdateMealItem(ctx context.Context, id int64, mealItem models.MealItem) (*models.MealItem, error)
+}
+
+func NewMealItemRepository(db *pgx.Conn) MealItemRepository {
+	return &mealItemRepository{
 		db: db,
 	}
 }
 
-func (m *MealItemRepository) CreateMealItem(ctx context.Context, mealItem models.MealItem) (*models.MealItem, error) {
+func (m *mealItemRepository) CreateMealItem(ctx context.Context, mealItem models.MealItem) (*models.MealItem, error) {
 	query := `INSERT INTO meal_items (meal_id, food_id, weight)
 	VALUES ($1, $2, $3)
 	RETURNING id
@@ -32,7 +40,7 @@ func (m *MealItemRepository) CreateMealItem(ctx context.Context, mealItem models
 	return &mealItem, nil
 }
 
-func (m *MealItemRepository) DeleteMealItem(ctx context.Context, id int64) error {
+func (m *mealItemRepository) DeleteMealItem(ctx context.Context, id int64) error {
 	query := `DELETE FROM meal_items
 	WHERE id = $1
 	`
@@ -40,7 +48,7 @@ func (m *MealItemRepository) DeleteMealItem(ctx context.Context, id int64) error
 	return err
 }
 
-func (m *MealItemRepository) GetMealItemByID(ctx context.Context, id int64) (*models.MealItem, error) {
+func (m *mealItemRepository) GetMealItemByID(ctx context.Context, id int64) (*models.MealItem, error) {
 	query := `SELECT id, meal_id, food_id, weight
 	FROM meal_items
 	WHERE id = $1
@@ -57,7 +65,7 @@ func (m *MealItemRepository) GetMealItemByID(ctx context.Context, id int64) (*mo
 	return &mealItem, nil
 }
 
-func (m *MealItemRepository) GetAllMealItems(ctx context.Context) ([]models.MealItem, error) {
+func (m *mealItemRepository) GetAllMealItems(ctx context.Context) ([]models.MealItem, error) {
 	query := `SELECT id, meal_id, food_id, weight
 	FROM meal_items
 	`
@@ -85,7 +93,7 @@ func (m *MealItemRepository) GetAllMealItems(ctx context.Context) ([]models.Meal
 	return mealItems, nil
 }
 
-func (m *MealItemRepository) UpdateMealItem(ctx context.Context, id int64, mealItem models.MealItem) (*models.MealItem, error) {
+func (m *mealItemRepository) UpdateMealItem(ctx context.Context, id int64, mealItem models.MealItem) (*models.MealItem, error) {
 	query := `UPDATE meal_items
 	SET meal_id = $1, food_id = $2, weight = $3
 	WHERE id = $4
