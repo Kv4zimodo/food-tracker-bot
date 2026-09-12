@@ -7,17 +7,25 @@ import (
 	"github.com/kv4zimodo/food-tracker-bot/internal/models"
 )
 
-type UserRepository struct {
+type userRepository struct {
 	db *pgx.Conn
 }
 
-func NewUserRepository(db *pgx.Conn) *UserRepository {
-	return &UserRepository{
+type UserRepository interface {
+	CreateUser(ctx context.Context, user models.User) (*models.User, error)
+	DeleteUser(ctx context.Context, id int64) error
+	GetUserByID(ctx context.Context, id int64) (*models.User, error)
+	GetAllUsers(ctx context.Context) ([]models.User, error)
+	UpdateUser(ctx context.Context, id int64, user models.User) (*models.User, error)
+}
+
+func NewUserRepository(db *pgx.Conn) UserRepository {
+	return &userRepository{
 		db: db,
 	}
 }
 
-func (u *UserRepository) CreateUser(ctx context.Context, user models.User) (*models.User, error) {
+func (u *userRepository) CreateUser(ctx context.Context, user models.User) (*models.User, error) {
 	query := `INSERT INTO users (user_name)
 	VALUES ($1)
 	RETURNING id
@@ -30,7 +38,7 @@ func (u *UserRepository) CreateUser(ctx context.Context, user models.User) (*mod
 	return &user, nil
 }
 
-func (u *UserRepository) DeleteUser(ctx context.Context, id int64) error {
+func (u *userRepository) DeleteUser(ctx context.Context, id int64) error {
 	query := `DELETE FROM users
 	WHERE id = $1
 	`
@@ -38,7 +46,7 @@ func (u *UserRepository) DeleteUser(ctx context.Context, id int64) error {
 	return err
 }
 
-func (u *UserRepository) GetUserByID(ctx context.Context, id int64) (*models.User, error) {
+func (u *userRepository) GetUserByID(ctx context.Context, id int64) (*models.User, error) {
 	query := `SELECT id, user_name
 	FROM users
 	WHERE id = $1
@@ -53,7 +61,7 @@ func (u *UserRepository) GetUserByID(ctx context.Context, id int64) (*models.Use
 	return &user, nil
 }
 
-func (u *UserRepository) GetAllUsers(ctx context.Context) ([]models.User, error) {
+func (u *userRepository) GetAllUsers(ctx context.Context) ([]models.User, error) {
 	query := `SELECT id, user_name
 	FROM users
 	`
@@ -77,7 +85,7 @@ func (u *UserRepository) GetAllUsers(ctx context.Context) ([]models.User, error)
 	return users, nil
 }
 
-func (u *UserRepository) UpdateUser(ctx context.Context, id int64, user models.User) (*models.User, error) {
+func (u *userRepository) UpdateUser(ctx context.Context, id int64, user models.User) (*models.User, error) {
 	query := `UPDATE users
 	SET user_name = $1
 	WHERE id = $2
