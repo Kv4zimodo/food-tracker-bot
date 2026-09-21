@@ -17,6 +17,7 @@ type UserService interface {
 	CreateUser(ctx context.Context, user models.User) (*models.User, error)
 	DeleteUser(ctx context.Context, id int64) error
 	GetUserByID(ctx context.Context, id int64) (*models.User, error)
+	GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error)
 	GetAllUsers(ctx context.Context) ([]models.User, error)
 	UpdateUser(ctx context.Context, id int64, user models.User) (*models.User, error)
 }
@@ -37,14 +38,14 @@ func (u *userService) CreateUser(ctx context.Context, user models.User) (*models
 
 func (u *userService) DeleteUser(ctx context.Context, id int64) error {
 	if id <= 0 {
-		return errors.New("Неккоректный ID")
+		return errors.New("Некорректный ID")
 	}
 	return u.repository.DeleteUser(ctx, id)
 }
 
 func (u *userService) GetUserByID(ctx context.Context, id int64) (*models.User, error) {
 	if id <= 0 {
-		return nil, errors.New("Неккоректный ID")
+		return nil, errors.New("Некорректный ID")
 	}
 	return u.repository.GetUserByID(ctx, id)
 }
@@ -62,4 +63,11 @@ func (u *userService) UpdateUser(ctx context.Context, id int64, user models.User
 		return nil, errors.New("Некорректный ID")
 	}
 	return u.repository.UpdateUser(ctx, id, user)
+}
+
+func (u *userService) GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error) {
+	if telegramID <= 0 {
+		return nil, errors.New("Некорректный ID")
+	}
+	return u.repository.GetUserByTelegramID(ctx, telegramID)
 }
