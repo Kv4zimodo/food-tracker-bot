@@ -15,6 +15,7 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user models.User) (*models.User, error)
 	DeleteUser(ctx context.Context, id int64) error
 	GetUserByID(ctx context.Context, id int64) (*models.User, error)
+	GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error)
 	GetAllUsers(ctx context.Context) ([]models.User, error)
 	UpdateUser(ctx context.Context, id int64, user models.User) (*models.User, error)
 }
@@ -26,12 +27,12 @@ func NewUserRepository(db *pgx.Conn) UserRepository {
 }
 
 func (u *userRepository) CreateUser(ctx context.Context, user models.User) (*models.User, error) {
-	query := `INSERT INTO users (user_name)
-	VALUES ($1)
-	RETURNING id
+	query := `INSERT INTO users (name, telegram_id)
+	VALUES ($1, $2)
+	RETURNING id, telegram_id, name
 	`
 	err := u.db.QueryRow(ctx, query,
-		user.Name).Scan(&user.ID)
+		user.Name, user.TelegramID).Scan(&user.ID, &user.TelegramID, &user.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -47,14 +48,16 @@ func (u *userRepository) DeleteUser(ctx context.Context, id int64) error {
 }
 
 func (u *userRepository) GetUserByID(ctx context.Context, id int64) (*models.User, error) {
-	query := `SELECT id, user_name
+	query := `SELECT id, telegram_id, name
 	FROM users
 	WHERE id = $1
 	`
 	var user models.User
 	err := u.db.QueryRow(ctx, query, id).Scan(
 		&user.ID,
-		&user.Name)
+		&user.TelegramID,
+		&user.Name,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +65,7 @@ func (u *userRepository) GetUserByID(ctx context.Context, id int64) (*models.Use
 }
 
 func (u *userRepository) GetAllUsers(ctx context.Context) ([]models.User, error) {
-	query := `SELECT id, user_name
+	query := `SELECT id, telegram_id, name
 	FROM users
 	`
 	var users []models.User
@@ -73,7 +76,12 @@ func (u *userRepository) GetAllUsers(ctx context.Context) ([]models.User, error)
 	defer rows.Close()
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.ID, &user.Name)
+
+		err := rows.Scan(
+			&user.ID,
+			&user.TelegramID,
+			&user.Name,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -87,14 +95,32 @@ func (u *userRepository) GetAllUsers(ctx context.Context) ([]models.User, error)
 
 func (u *userRepository) UpdateUser(ctx context.Context, id int64, user models.User) (*models.User, error) {
 	query := `UPDATE users
-	SET user_name = $1
+	SET name = $1
 	WHERE id = $2
-	RETURNING id, user_name
+	RETURNING id, telegram_id, name
 	`
 	err := u.db.QueryRow(ctx, query,
 		user.Name,
 		id).Scan(
 		&user.ID,
+		&user.TelegramID,
+		&user.Name,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (u *userRepository) GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error) {
+	query := `SELECT id, telegram_id, name
+	FROM users
+	WHERE telegram_id = $1
+	`
+	var user models.User
+	err := u.db.QueryRow(ctx, query, telegramID).Scan(
+		&user.ID,
+		&user.TelegramID,
 		&user.Name)
 	if err != nil {
 		return nil, err
