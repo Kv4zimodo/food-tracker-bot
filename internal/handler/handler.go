@@ -2,12 +2,8 @@ package handler
 
 import (
 	"context"
-	"errors"
-	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/jackc/pgx/v5"
-	"github.com/kv4zimodo/food-tracker-bot/internal/models"
 	"github.com/kv4zimodo/food-tracker-bot/internal/service"
 )
 
@@ -46,10 +42,8 @@ func (h *handler) HandleUpdate(ctx context.Context, update tgbotapi.Update) {
 
 	switch update.Message.Text {
 	case "/start":
-		handler.HandlerStart(ctx, update)
+		h.HandlerStart(ctx, update)
 	case "/help":
-		handler.HandlerHelp(update)
-	case "/menu":
-		handler.MainMenu()
+		h.HandlerHelp(update)
 	}
 }

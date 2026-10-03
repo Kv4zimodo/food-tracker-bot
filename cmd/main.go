@@ -65,5 +65,3 @@ func main() {
 		h.HandleUpdate(ctx, update)
 	}
 }
-
-//  ЗАКОММИТЬ
