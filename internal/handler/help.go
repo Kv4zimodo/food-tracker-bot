@@ -1,6 +1,12 @@
 package handler
 
-func HandlerHelp(update tgbotapi.Update) {
+import (
+	"log"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+)
+
+func (h *handler) HandlerHelp(update tgbotapi.Update) {
 	if update.Message == nil {
 		return
 	}

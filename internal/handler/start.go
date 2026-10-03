@@ -1,6 +1,16 @@
 package handler
 
-func HandlerStart(ctx context.Context, update tgbotapi.Update) {
+import (
+	"context"
+	"errors"
+	"log"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/jackc/pgx/v5"
+	"github.com/kv4zimodo/food-tracker-bot/internal/models"
+)
+
+func (h *handler) HandlerStart(ctx context.Context, update tgbotapi.Update) {
 	if update.Message == nil {
 		return
 	}
@@ -26,6 +36,8 @@ func HandlerStart(ctx context.Context, update tgbotapi.Update) {
 	}
 
 	msg := tgbotapi.NewMessage(chatID, "Привет, "+user.Name+"!")
+
+	msg.ReplyMarkup = MainMenu()
 
 	if _, err := h.bot.Send(msg); err != nil {
 		log.Println("Ошибка отправки сообщения:", err)
