@@ -16,6 +16,7 @@ type MealRepository interface {
 	DeleteMeal(ctx context.Context, id int64) error
 	GetMealByID(ctx context.Context, id int64) (*models.Meal, error)
 	GetAllMeals(ctx context.Context) ([]models.Meal, error)
+	GetMealByUserAndCategory(ctx context.Context, userID int64, category models.MealCategory) (*models.Meal, error)
 	UpdateMeal(ctx context.Context, id int64, meal models.Meal) (*models.Meal, error)
 }
 
@@ -103,5 +104,29 @@ func (m *mealRepository) UpdateMeal(ctx context.Context, id int64, meal models.M
 	if err != nil {
 		return nil, err
 	}
+	return &meal, nil
+}
+
+func (m *mealRepository) GetMealByUserAndCategory(ctx context.Context, userID int64, category models.MealCategory) (*models.Meal, error) {
+	query := `SELECT id, user_id, category
+	FROM meals
+	WHERE user_id = $1 AND category = $2`
+
+	var meal models.Meal
+
+	err := m.db.QueryRow(
+		ctx,
+		query,
+		userID,
+		category,
+	).Scan(
+		&meal.ID,
+		&meal.UserID,
+		&meal.Category,
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	return &meal, nil
 }

@@ -16,6 +16,7 @@ type FoodRepository interface {
 	DeleteFood(ctx context.Context, id int64) error
 	GetFoodByID(ctx context.Context, id int64) (*models.Food, error)
 	GetAllFoods(ctx context.Context) ([]models.Food, error)
+	GetFoodByName(ctx context.Context, name string) (*models.Food, error)
 	UpdateFood(ctx context.Context, id int64, food models.Food) (*models.Food, error)
 }
 
@@ -26,7 +27,7 @@ func NewFoodRepository(db *pgx.Conn) FoodRepository {
 }
 
 func (f *foodRepository) CreateFood(ctx context.Context, food models.Food) (*models.Food, error) {
-	query := `INSERT INTO foods (name, calories, protein, fats, carbs)
+	query := `INSERT INTO foods (name, calories, protein, fat, carbs)
 	VALUES ($1, $2, $3, $4, $5)
 	RETURNING id
 	`
@@ -52,7 +53,7 @@ func (f *foodRepository) DeleteFood(ctx context.Context, id int64) error {
 }
 
 func (f *foodRepository) GetFoodByID(ctx context.Context, id int64) (*models.Food, error) {
-	query := `SELECT id, name, calories, protein, fats, carbs
+	query := `SELECT id, name, calories, protein, fat, carbs
 	FROM foods
 	WHERE id = $1
 	`
@@ -70,7 +71,7 @@ func (f *foodRepository) GetFoodByID(ctx context.Context, id int64) (*models.Foo
 }
 
 func (f *foodRepository) GetAllFoods(ctx context.Context) ([]models.Food, error) {
-	query := `SELECT id, name, calories, protein, fats, carbs
+	query := `SELECT id, name, calories, protein, fat, carbs
 	FROM foods
 	`
 	var foods []models.Food
@@ -101,9 +102,9 @@ func (f *foodRepository) GetAllFoods(ctx context.Context) ([]models.Food, error)
 
 func (f *foodRepository) UpdateFood(ctx context.Context, id int64, food models.Food) (*models.Food, error) {
 	query := `UPDATE foods 
-	SET name = $1, calories = $2, protein = $3, fats = $4, carbs = $5
+	SET name = $1, calories = $2, protein = $3, fat = $4, carbs = $5
 	WHERE id = $6
-	RETURNING id, name, calories, protein, fats, carbs
+	RETURNING id, name, calories, protein, fat, carbs
 	`
 	err := f.db.QueryRow(ctx, query,
 		food.Name,
@@ -115,5 +116,27 @@ func (f *foodRepository) UpdateFood(ctx context.Context, id int64, food models.F
 	if err != nil {
 		return nil, err
 	}
+	return &food, nil
+}
+
+func (f *foodRepository) GetFoodByName(ctx context.Context, name string) (*models.Food, error) {
+	query := `SELECT id, name, calories, protein, fat, carbs
+    FROM foods
+    WHERE name = $1`
+
+	var food models.Food
+
+	err := f.db.QueryRow(ctx, query, name).Scan(
+		&food.ID,
+		&food.Name,
+		&food.Calories,
+		&food.Protein,
+		&food.Fat,
+		&food.Carbs,
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	return &food, nil
 }
