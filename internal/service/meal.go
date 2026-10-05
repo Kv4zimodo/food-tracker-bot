@@ -17,6 +17,7 @@ type MealService interface {
 	DeleteMeal(ctx context.Context, id int64) error
 	GetMealByID(ctx context.Context, id int64) (*models.Meal, error)
 	GetAllMeals(ctx context.Context) ([]models.Meal, error)
+	GetMealByUserAndCategory(ctx context.Context, userID int64, category models.MealCategory) (*models.Meal, error)
 	UpdateMeal(ctx context.Context, id int64, meal models.Meal) (*models.Meal, error)
 }
 
@@ -69,4 +70,22 @@ func (m *mealService) UpdateMeal(ctx context.Context, id int64, meal models.Meal
 		return nil, errors.New("Некорректный ID")
 	}
 	return m.repository.UpdateMeal(ctx, id, meal)
+}
+
+func (m *mealService) GetMealByUserAndCategory(ctx context.Context, userID int64, category models.MealCategory) (*models.Meal, error) {
+	if userID <= 0 {
+		return nil, errors.New("Некорректный ID пользователя")
+	}
+	if err := validateMeal(models.Meal{
+		UserID:   userID,
+		Category: category,
+	}); err != nil {
+		return nil, err
+	}
+
+	return m.repository.GetMealByUserAndCategory(
+		ctx,
+		userID,
+		category,
+	)
 }

@@ -36,6 +36,11 @@ func NewHandler(bot *tgbotapi.BotAPI,
 }
 
 func (h *handler) HandleUpdate(ctx context.Context, update tgbotapi.Update) {
+	if update.CallbackQuery != nil {
+		h.MealCallBack(update)
+		return
+	}
+
 	if update.Message == nil {
 		return
 	}
@@ -45,5 +50,19 @@ func (h *handler) HandleUpdate(ctx context.Context, update tgbotapi.Update) {
 		h.HandlerStart(ctx, update)
 	case "/help":
 		h.HandlerHelp(update)
+	case "Добавить еду":
+		h.AddFood(update)
+	default:
+		state := states[update.Message.From.ID]
+
+		if state.State == "waiting_food" {
+			h.FoodInput(update)
+			return
+		}
+
+		if state.State == "waiting_weight" {
+			h.WeightInput(ctx, update)
+			return
+		}
 	}
 }

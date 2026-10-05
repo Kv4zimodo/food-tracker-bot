@@ -18,6 +18,7 @@ type FoodService interface {
 	DeleteFood(ctx context.Context, id int64) error
 	GetFoodByID(ctx context.Context, id int64) (*models.Food, error)
 	GetAllFoods(ctx context.Context) ([]models.Food, error)
+	GetFoodByName(ctx context.Context, name string) (*models.Food, error)
 	UpdateFood(ctx context.Context, id int64, food models.Food) (*models.Food, error)
 }
 
@@ -83,4 +84,14 @@ func (f *foodService) UpdateFood(ctx context.Context, id int64, food models.Food
 		return nil, err
 	}
 	return f.repository.UpdateFood(ctx, id, food)
+}
+
+func (f *foodService) GetFoodByName(ctx context.Context, name string) (*models.Food, error) {
+	name = strings.TrimSpace(name)
+
+	if name == "" {
+		return nil, errors.New("Название продукта не может быть пустым")
+	}
+
+	return f.repository.GetFoodByName(ctx, name)
 }
