@@ -52,6 +52,8 @@ func (h *handler) HandleUpdate(ctx context.Context, update tgbotapi.Update) {
 		h.HandlerHelp(update)
 	case "Добавить еду":
 		h.AddFood(update)
+	case "Сегодня":
+		h.Today(ctx, update)
 	default:
 		state := states[update.Message.From.ID]
 

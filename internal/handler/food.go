@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/jackc/pgx/v5"
@@ -184,11 +185,20 @@ func (h *handler) WeightInput(ctx context.Context, update tgbotapi.Update) {
 
 	category := models.MealCategory(state.Meal)
 
-	meal, err := h.serviceMeal.GetMealByUserAndCategory(
+	now := time.Now()
+
+	today := time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		0, 0, 0, 0,
+		now.Location())
+
+	meal, err := h.serviceMeal.GetMealByUserAndCategoryAndDate(
 		ctx,
 		user.ID,
 		category,
-	)
+		today)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -197,6 +207,7 @@ func (h *handler) WeightInput(ctx context.Context, update tgbotapi.Update) {
 				models.Meal{
 					UserID:   user.ID,
 					Category: category,
+					Date:     today,
 				},
 			)
 
@@ -253,10 +264,7 @@ func (h *handler) WeightInput(ctx context.Context, update tgbotapi.Update) {
 		return
 	}
 
-	nutrition := service.CalculateNutrition(
-		*food,
-		float64(weight),
-	)
+	nutrition := service.CalculateNutrition(*food, float64(weight))
 
 	text := fmt.Sprintf(
 		"Добавлено в прием пищи\n\n"+

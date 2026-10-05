@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/kv4zimodo/food-tracker-bot/internal/models"
 	"github.com/kv4zimodo/food-tracker-bot/internal/repository"
@@ -18,6 +19,8 @@ type MealService interface {
 	GetMealByID(ctx context.Context, id int64) (*models.Meal, error)
 	GetAllMeals(ctx context.Context) ([]models.Meal, error)
 	GetMealByUserAndCategory(ctx context.Context, userID int64, category models.MealCategory) (*models.Meal, error)
+	GetMealsByUserAndDate(ctx context.Context, userID int64, date time.Time) ([]models.Meal, error)
+	GetMealByUserAndCategoryAndDate(ctx context.Context, userID int64, category models.MealCategory, date time.Time) (*models.Meal, error)
 	UpdateMeal(ctx context.Context, id int64, meal models.Meal) (*models.Meal, error)
 }
 
@@ -87,5 +90,22 @@ func (m *mealService) GetMealByUserAndCategory(ctx context.Context, userID int64
 		ctx,
 		userID,
 		category,
+	)
+}
+
+func (m *mealService) GetMealsByUserAndDate(ctx context.Context, userID int64, date time.Time) ([]models.Meal, error) {
+	return m.repository.GetMealsByUserAndDate(
+		ctx,
+		userID,
+		date,
+	)
+}
+
+func (m *mealService) GetMealByUserAndCategoryAndDate(ctx context.Context, userID int64, category models.MealCategory, date time.Time) (*models.Meal, error) {
+	return m.repository.GetMealByUserAndCategoryAndDate(
+		ctx,
+		userID,
+		category,
+		date,
 	)
 }

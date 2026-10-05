@@ -17,6 +17,7 @@ type MealItemService interface {
 	DeleteMealItem(ctx context.Context, id int64) error
 	GetMealItemByID(ctx context.Context, id int64) (*models.MealItem, error)
 	GetAllMealItems(ctx context.Context) ([]models.MealItem, error)
+	GetMealItemsByMealID(ctx context.Context, mealID int64) ([]models.MealItem, error)
 	UpdateMealItem(ctx context.Context, id int64, mealItem models.MealItem) (*models.MealItem, error)
 }
 
@@ -59,4 +60,8 @@ func (m *mealItemService) UpdateMealItem(ctx context.Context, id int64, mealItem
 		return nil, errors.New("Некорректный ID")
 	}
 	return m.repository.UpdateMealItem(ctx, id, mealItem)
+}
+
+func (s *mealItemService) GetMealItemsByMealID(ctx context.Context, mealID int64) ([]models.MealItem, error) {
+	return s.repository.GetMealItemsByMealID(ctx, mealID)
 }
