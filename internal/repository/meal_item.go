@@ -16,6 +16,7 @@ type MealItemRepository interface {
 	DeleteMealItem(ctx context.Context, id int64) error
 	GetMealItemByID(ctx context.Context, id int64) (*models.MealItem, error)
 	GetAllMealItems(ctx context.Context) ([]models.MealItem, error)
+	GetMealItemsByMealID(ctx context.Context, mealID int64) ([]models.MealItem, error)
 	UpdateMealItem(ctx context.Context, id int64, mealItem models.MealItem) (*models.MealItem, error)
 }
 
@@ -112,4 +113,39 @@ func (m *mealItemRepository) UpdateMealItem(ctx context.Context, id int64, mealI
 		return nil, err
 	}
 	return &mealItem, nil
+}
+
+func (m *mealItemRepository) GetMealItemsByMealID(ctx context.Context, mealID int64) ([]models.MealItem, error) {
+	query := `SELECT id, meal_id, food_id, weight
+	FROM meal_items
+	WHERE meal_id = $1
+	ORDER BY id`
+
+	rows, err := m.db.Query(ctx, query, mealID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var mealItems []models.MealItem
+
+	for rows.Next() {
+		var mealItem models.MealItem
+
+		err := rows.Scan(&mealItem.ID,
+			&mealItem.MealID,
+			&mealItem.FoodID,
+			&mealItem.Weight)
+		if err != nil {
+			return nil, err
+		}
+
+		mealItems = append(mealItems, mealItem)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return mealItems, nil
 }

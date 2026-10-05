@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type MealCategory string
 
 const (
@@ -13,5 +15,6 @@ type Meal struct {
 	ID       int64
 	UserID   int64
 	Category MealCategory
+	Date     time.Time
 	Items    []MealItem
 }
