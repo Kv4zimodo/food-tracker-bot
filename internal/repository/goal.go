@@ -25,9 +25,9 @@ func NewGoalRepository(db *pgx.Conn) GoalRepository {
 }
 
 func (g *goalRepository) CreateGoal(ctx context.Context, goal models.Goal) (*models.Goal, error) {
-	query := `INSERT INTO goals (user_id, calories, protein, fats, carbs)
+	query := `INSERT INTO goals (user_id, calories, protein, fat, carbs)
 	VALUES ($1, $2, $3, $4, $5)
-	RETURNING user_id, calories, protein, fats, carbs
+	RETURNING user_id, calories, protein, fat, carbs
 	`
 	err := g.db.QueryRow(ctx, query,
 		goal.UserID,
@@ -54,7 +54,7 @@ func (g *goalRepository) DeleteGoal(ctx context.Context, userID int64) error {
 }
 
 func (g *goalRepository) GetGoalByUserID(ctx context.Context, userID int64) (*models.Goal, error) {
-	query := `SELECT user_id, calories, protein, fats, carbs
+	query := `SELECT user_id, calories, protein, fat, carbs
 	FROM goals
 	WHERE user_id = $1
 	`
@@ -72,9 +72,9 @@ func (g *goalRepository) GetGoalByUserID(ctx context.Context, userID int64) (*mo
 
 func (g *goalRepository) UpdateGoal(ctx context.Context, userID int64, goal models.Goal) (*models.Goal, error) {
 	query := `UPDATE goals
-	SET calories = $1, protein = $2, fats = $3, carbs = $4
+	SET calories = $1, protein = $2, fat = $3, carbs = $4
 	WHERE user_id = $5
-	RETURNING user_id, calories, protein, fats, carbs
+	RETURNING user_id, calories, protein, fat, carbs
 	`
 	err := g.db.QueryRow(ctx, query,
 		goal.Calories,
