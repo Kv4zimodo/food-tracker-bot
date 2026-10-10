@@ -10,7 +10,7 @@ func MainMenu() tgbotapi.ReplyKeyboardMarkup {
 		),
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton("Моя цель"),
-			tgbotapi.NewKeyboardButton("Настройки"),
+			tgbotapi.NewKeyboardButton("Задать цель"),
 		),
 	)
 }

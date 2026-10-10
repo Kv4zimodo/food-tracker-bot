@@ -15,10 +15,14 @@ import (
 )
 
 type userState struct {
-	Meal     string
-	State    string
-	FoodName string
-	Weight   int
+	Meal        string
+	MealItemID  int64
+	State       string
+	FoodName    string
+	FoodID      int64
+	Weight      int
+	GoalProtein float64
+	GoalFat     float64
 }
 
 var states = make(map[int64]userState)
@@ -76,6 +80,13 @@ func (h *handler) MealCallBack(update tgbotapi.Update) {
 			Meal:  "snack",
 			State: "waiting_food",
 		}
+	default:
+		return
+	}
+
+	callback := tgbotapi.NewCallback(update.CallbackQuery.ID, "")
+	if _, err := h.bot.Request(callback); err != nil {
+		log.Println("Ошибка подтверждения callback:", err)
 	}
 
 	msg := tgbotapi.NewMessage(chatID, "Введите название продукта")
@@ -85,7 +96,7 @@ func (h *handler) MealCallBack(update tgbotapi.Update) {
 	}
 }
 
-func (h *handler) FoodInput(update tgbotapi.Update) {
+func (h *handler) FoodInput(ctx context.Context, update tgbotapi.Update) {
 	telegramID := update.Message.From.ID
 	chatID := update.Message.Chat.ID
 	foodName := update.Message.Text
@@ -96,9 +107,24 @@ func (h *handler) FoodInput(update tgbotapi.Update) {
 		return
 	}
 
-	state.FoodName = foodName
-	state.State = "waiting_weight"
+	food, err := h.serviceFood.GetFoodByName(ctx, foodName)
+	if err != nil {
+		log.Println("Ошибка поиска продукта:", err)
 
+		state.State = "waiting_food"
+		states[telegramID] = state
+
+		msg := tgbotapi.NewMessage(chatID, "Такого продукта нет в базе, введите название продукта снова")
+		if _, err := h.bot.Send(msg); err != nil {
+			log.Println("Ошибка отправки сообщения:", err)
+		}
+
+		return
+	}
+
+	state.FoodID = food.ID
+	state.FoodName = food.Name
+	state.State = "waiting_weight"
 	states[telegramID] = state
 
 	msg := tgbotapi.NewMessage(chatID, "Введите вес продукта в граммах")
@@ -137,24 +163,12 @@ func (h *handler) WeightInput(ctx context.Context, update tgbotapi.Update) {
 	state.Weight = weight
 	states[telegramID] = state
 
-	food, err := h.serviceFood.GetFoodByName(ctx, state.FoodName)
-	if err != nil {
-		log.Println("Ошибка поиска продукта:", err)
-
-		msg := tgbotapi.NewMessage(chatID, "Такого продукта нет в базе")
-		if _, err := h.bot.Send(msg); err != nil {
-			log.Println("Ошибка отправки сообщения:", err)
-		}
-
-		return
-	}
-
 	user, err := h.serviceUser.GetUserByTelegramID(
 		ctx,
 		telegramID,
 	)
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			log.Println("Пользователь не найден")
 
 			msg := tgbotapi.NewMessage(
@@ -241,6 +255,18 @@ func (h *handler) WeightInput(ctx context.Context, update tgbotapi.Update) {
 		}
 	}
 
+	food, err := h.serviceFood.GetFoodByID(ctx, state.FoodID)
+	if err != nil {
+		log.Println("Ошибка получения продукта:", err)
+
+		msg := tgbotapi.NewMessage(chatID, "Не удалось получить продукт из базы, попробуй добавить его заново.")
+		if _, err := h.bot.Send(msg); err != nil {
+			log.Println("Ошибка отправки сообщения:", err)
+		}
+
+		return
+	}
+
 	_, err = h.serviceMealItem.CreateMealItem(
 		ctx,
 		models.MealItem{
@@ -280,6 +306,8 @@ func (h *handler) WeightInput(ctx context.Context, update tgbotapi.Update) {
 		nutrition.Fat,
 		nutrition.Carbs,
 	)
+
+	delete(states, telegramID)
 
 	msg := tgbotapi.NewMessage(chatID, text)
 
